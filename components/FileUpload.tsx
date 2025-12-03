@@ -1,6 +1,5 @@
 import React, { useRef, useState } from 'react';
-import { Upload, FileText, CheckCircle, AlertCircle } from 'lucide-react';
-import { COLORS } from '../constants';
+import { Upload, FileText, AlertCircle } from 'lucide-react';
 
 interface Props {
   onDataLoaded: (csvText: string) => void;

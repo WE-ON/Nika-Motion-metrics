@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { EmployeeStats } from '../types';
-import { COLORS } from '../constants';
 import Card from './ui/Card';
 import { ArrowUpDown, ArrowUp, ArrowDown, AlertTriangle, ChevronDown, ChevronUp } from 'lucide-react';
 
