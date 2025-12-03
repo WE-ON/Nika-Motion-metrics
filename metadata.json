@@ -1,0 +1,5 @@
+{
+  "name": "Nika Motion Analytics",
+  "description": "A comprehensive performance analytics dashboard for engineering teams, visualizing work distribution, project trends, and employee efficiency based on CSV data.",
+  "requestFramePermissions": []
+}
