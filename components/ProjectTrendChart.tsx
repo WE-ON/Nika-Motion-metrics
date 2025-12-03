@@ -19,13 +19,23 @@ interface Props {
 }
 
 const ProjectTrendChart: React.FC<Props> = ({ projectTrends, projectList }) => {
+  // Calculate total hours and sort projects
+  const sortedProjects = React.useMemo(() => {
+    const projects = projectList.map(project => {
+      const stats = projectTrends[project] || [];
+      const totalHours = stats.reduce((sum, day) => sum + day.total, 0);
+      return { name: project, totalHours };
+    });
+    return projects.sort((a, b) => b.totalHours - a.totalHours);
+  }, [projectList, projectTrends]);
+
   const [selectedProject, setSelectedProject] = useState<string>('');
 
   useEffect(() => {
-    if (projectList.length > 0 && !selectedProject) {
-      setSelectedProject(projectList[0]);
+    if (sortedProjects.length > 0 && !selectedProject) {
+      setSelectedProject(sortedProjects[0].name);
     }
-  }, [projectList]);
+  }, [sortedProjects]);
 
   const data = selectedProject ? projectTrends[selectedProject] : [];
 
@@ -58,9 +68,9 @@ const ProjectTrendChart: React.FC<Props> = ({ projectTrends, projectList }) => {
           onChange={(e) => setSelectedProject(e.target.value)}
           className="block w-full max-w-xs pl-3 pr-10 py-2 text-base border-gray-600 focus:outline-none focus:ring-[#B5F836] focus:border-[#B5F836] sm:text-sm rounded-md bg-[#193133] text-white border"
         >
-          {projectList.map((p) => (
-            <option key={p} value={p}>
-              {p}
+          {sortedProjects.map((p) => (
+            <option key={p.name} value={p.name}>
+              ({p.totalHours.toFixed(0)} ч.) {p.name}
             </option>
           ))}
         </select>
