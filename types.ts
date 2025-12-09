@@ -15,6 +15,7 @@ export interface DailyStats {
   comm: number;
   other: number;
   total: number;
+  employees?: string[]; // List of employees active on this day
 }
 
 export interface ProjectStats {

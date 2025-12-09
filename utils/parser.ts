@@ -114,6 +114,8 @@ const aggregateData = (records: RawRecord[]): AggregatedData => {
   const projectMap = new Map<string, Map<string, DailyStats>>();
   const employeeMap = new Map<string, EmployeeStats>();
   const projectSet = new Set<string>();
+  // Track employees per project per day
+  const projectEmployeeMap = new Map<string, Map<string, Set<string>>>();
 
   records.forEach(r => {
     // Basic date validation
@@ -138,6 +140,18 @@ const aggregateData = (records: RawRecord[]): AggregatedData => {
         const pDayStat = pMap.get(r.date)!;
         
         updateStats(pDayStat, r.activityType, r.hours);
+
+        // Track employees
+        if (r.employee) {
+            if (!projectEmployeeMap.has(r.project)) {
+                projectEmployeeMap.set(r.project, new Map());
+            }
+            const pEmpMap = projectEmployeeMap.get(r.project)!;
+            if (!pEmpMap.has(r.date)) {
+                pEmpMap.set(r.date, new Set());
+            }
+            pEmpMap.get(r.date)!.add(r.employee);
+        }
     }
 
     // 3. Employee Aggregation
@@ -177,7 +191,17 @@ const aggregateData = (records: RawRecord[]): AggregatedData => {
   // Process Project Trends
   const projectTrends: Record<string, DailyStats[]> = {};
   projectMap.forEach((dateMap, projectName) => {
-      projectTrends[projectName] = Array.from(dateMap.values()).sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+      const statsList = Array.from(dateMap.values());
+      
+      // Enrich with employees
+      statsList.forEach(stat => {
+        const pEmpMap = projectEmployeeMap.get(projectName);
+        if (pEmpMap && pEmpMap.has(stat.date)) {
+            stat.employees = Array.from(pEmpMap.get(stat.date)!);
+        }
+      });
+
+      projectTrends[projectName] = statsList.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
   });
 
   return {

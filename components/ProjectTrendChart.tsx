@@ -41,15 +41,29 @@ const ProjectTrendChart: React.FC<Props> = ({ projectTrends, projectList }) => {
 
   const CustomTooltip = ({ active, payload, label }: any) => {
     if (active && payload && payload.length) {
+      const data = payload[0].payload as DailyStats;
       return (
-        <div className="bg-gray-800 p-3 border border-gray-700 rounded shadow text-xs text-white">
+        <div className="bg-gray-800 p-3 border border-gray-700 rounded shadow text-xs text-white z-50 max-w-[250px]">
           <p className="font-bold mb-2">{label}</p>
           {payload.map((p: any, idx: number) => (
             <p key={idx} style={{ color: p.color }}>
               {p.name}: {p.value.toFixed(2)} ч.
             </p>
           ))}
-          <p className="mt-2 pt-2 border-t border-gray-600 font-bold">Total: {payload[0].payload.total.toFixed(2)} ч.</p>
+          <p className="mt-2 pt-2 border-t border-gray-600 font-bold">Total: {data.total.toFixed(2)} ч.</p>
+          
+          {data.employees && data.employees.length > 0 && (
+            <div className="mt-2 pt-2 border-t border-gray-600">
+              <p className="font-semibold text-gray-400 mb-1">Сотрудники:</p>
+              <div className="flex flex-wrap gap-1">
+                {data.employees.map((emp, i) => (
+                  <span key={i} className="bg-gray-700 px-1.5 py-0.5 rounded text-[10px] text-gray-300">
+                    {emp}
+                  </span>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
       );
     }
