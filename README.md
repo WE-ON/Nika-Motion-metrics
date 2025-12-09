@@ -2,19 +2,60 @@
 <img width="1200" height="475" alt="GHBanner" src="https://github.com/user-attachments/assets/0aa67016-6eaf-458a-adb2-6e31a0763ed6" />
 </div>
 
-# Run and deploy your AI Studio app
+# Nika Motion Metrics
 
-This contains everything you need to run your app locally.
+Инструмент для аналитики и визуализации эффективности команды на основе CSV-данных. Приложение позволяет загружать отчеты о деятельности сотрудников и отображать детальную статистику по проектам, активности и производительности.
 
 View your app in AI Studio: https://ai.studio/apps/drive/18EJ-4Q_KKc20bg5k9hc5u4USSaJWfyoP
 
-## Run Locally
+## Функциональность
 
-**Prerequisites:**  Node.js
+*   **Импорт данных**: Поддержка загрузки CSV файлов (разделители `;` или `,`).
+*   **Автоматический парсинг**: Умное определение столбцов (Дата, Проект, Активность, Сотрудник, Часы).
+*   **Визуализация**:
+    *   Графики активности по дням.
+    *   Тренды проектов (динамика затраченного времени).
+    *   Сводная таблица эффективности сотрудников.
+*   **Производительность**: Быстрая обработка данных на клиенте без отправки на сервер.
 
+## Технологический стек
 
-1. Install dependencies:
-   `npm install`
-2. Set the `GEMINI_API_KEY` in [.env.local](.env.local) to your Gemini API key
-3. Run the app:
-   `npm run dev`
+*   **Frontend**: React, TypeScript, Vite
+*   **UI/UX**: TailwindCSS, Lucide React (иконки)
+*   **Charts**: Recharts
+*   **Utils**: Кастомный CSV парсер
+
+## Запуск локально
+
+**Предварительные требования:** Node.js (версия 18+ рекомендуется)
+
+1.  Установите зависимости:
+    ```bash
+    npm install
+    ```
+
+2.  Запустите режим разработки:
+    ```bash
+    npm run dev
+    ```
+    Приложение будет доступно по адресу `http://localhost:5173` (по умолчанию).
+
+## Тестирование
+
+Для запуска тестов используйте следующую команду (запуск в тихом режиме CI):
+
+```bash
+npm run test:ci --silent
+```
+
+## Формат данных (CSV)
+
+Приложение ожидает CSV файл, содержащий информацию о деятельности. Парсер автоматически ищет следующие заголовки (или их английские аналоги):
+*   `День` / `Date`
+*   `Проект` / `Project`
+*   `Тип активности` / `Activity`
+*   `Сотрудник` / `Employee`
+*   `Часов` / `Hours`
+
+Пример строки:
+`01.01.2024;Project A;Development;Ivanov I.I.;Programmer;VS Code;8;5`
