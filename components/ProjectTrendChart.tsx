@@ -54,7 +54,7 @@ const ProjectTrendChart: React.FC<Props> = ({ projectTrends, projectList }) => {
           
           {data.employees && data.employees.length > 0 && (
             <div className="mt-2 pt-2 border-t border-gray-600">
-              <p className="font-semibold text-gray-400 mb-1">Сотрудники:</p>
+              <p className="font-semibold text-gray-400 mb-1">Сотрудники ({data.employees.length}):</p>
               <div className="flex flex-wrap gap-1">
                 {data.employees.map((emp, i) => (
                   <span key={i} className="bg-gray-700 px-1.5 py-0.5 rounded text-[10px] text-gray-300">

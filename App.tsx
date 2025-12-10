@@ -70,7 +70,7 @@ const App: React.FC = () => {
         ) : (
           <div className="space-y-8 animate-fade-in">
              {/* Stats Summary - Optional quick glance */}
-             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+             <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
                 <div className="bg-[#003B46] p-6 rounded-2xl border border-white/5">
                     <div className="text-gray-400 text-sm mb-1">Всего сотрудников</div>
                     <div className="text-3xl font-bold text-white">{data.employeeStats.length}</div>
@@ -78,6 +78,12 @@ const App: React.FC = () => {
                 <div className="bg-[#003B46] p-6 rounded-2xl border border-white/5">
                     <div className="text-gray-400 text-sm mb-1">Активных проектов</div>
                     <div className="text-3xl font-bold text-white">{data.projectList.length}</div>
+                </div>
+                <div className="bg-[#003B46] p-6 rounded-2xl border border-white/5">
+                    <div className="text-gray-400 text-sm mb-1">Всего часов</div>
+                    <div className="text-3xl font-bold text-white">
+                        {Math.round(data.employeeStats.reduce((acc, curr) => acc + curr.totalHours, 0))}
+                    </div>
                 </div>
                 <div className="bg-[#003B46] p-6 rounded-2xl border border-white/5">
                     <div className="text-gray-400 text-sm mb-1">Средняя эффективность</div>
