@@ -1,4 +1,4 @@
-import { RawRecord, AggregatedData, DailyStats, EmployeeStats } from '../types';
+import { RawRecord, AggregatedData, DailyStats, EmployeeStats, ProjectMeta } from '../types';
 
 export const parseCSV = (csvText: string): AggregatedData => {
   // Remove BOM if present
@@ -116,6 +116,8 @@ const aggregateData = (records: RawRecord[]): AggregatedData => {
   const projectSet = new Set<string>();
   // Track employees per project per day
   const projectEmployeeMap = new Map<string, Map<string, Set<string>>>();
+  // Track stats per employee per project for efficiency calculation
+  const projectStatsMap = new Map<string, Map<string, { work: number, total: number }>>();
 
   records.forEach(r => {
     // Basic date validation
@@ -151,6 +153,20 @@ const aggregateData = (records: RawRecord[]): AggregatedData => {
                 pEmpMap.set(r.date, new Set());
             }
             pEmpMap.get(r.date)!.add(r.employee);
+
+            // Track stats for project efficiency
+            if (!projectStatsMap.has(r.project)) {
+                projectStatsMap.set(r.project, new Map());
+            }
+            const pStats = projectStatsMap.get(r.project)!;
+            if (!pStats.has(r.employee)) {
+                pStats.set(r.employee, { work: 0, total: 0 });
+            }
+            const empPStat = pStats.get(r.employee)!;
+            if (isWork(r.activityType)) {
+                empPStat.work += r.hours;
+            }
+            empPStat.total += r.hours;
         }
     }
 
@@ -204,9 +220,43 @@ const aggregateData = (records: RawRecord[]): AggregatedData => {
       projectTrends[projectName] = statsList.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
   });
 
+  // Calculate Project Meta (Average Efficiency)
+  const projectMeta: Record<string, ProjectMeta> = {};
+  projectSet.forEach(projectName => {
+      const empMap = projectStatsMap.get(projectName);
+      let averageEfficiency = 0;
+      let totalHours = 0;
+
+      // Calculate total hours from daily stats to ensure accuracy
+      const pDailyStats = projectMap.get(projectName);
+      if (pDailyStats) {
+          pDailyStats.forEach(d => totalHours += d.total);
+      }
+
+      if (empMap) {
+          let totalEfficiency = 0;
+          let empCount = 0;
+          empMap.forEach((stats) => {
+              if (stats.total > 0) {
+                  const eff = (stats.work / stats.total) * 100;
+                  totalEfficiency += eff;
+                  empCount++;
+              }
+          });
+          averageEfficiency = empCount > 0 ? totalEfficiency / empCount : 0;
+      }
+      
+      projectMeta[projectName] = {
+          projectName,
+          totalHours,
+          averageEfficiency
+      };
+  });
+
   return {
     dailyPercents: sortedDaily,
     projectTrends,
+    projectMeta,
     employeeStats,
     projectList: Array.from(projectSet).sort()
   };

@@ -97,7 +97,11 @@ const App: React.FC = () => {
              <ActivityChart data={data.dailyPercents} />
 
              {/* Block 2: Project Trends */}
-             <ProjectTrendChart projectTrends={data.projectTrends} projectList={data.projectList} />
+             <ProjectTrendChart 
+                projectTrends={data.projectTrends} 
+                projectList={data.projectList}
+                projectMeta={data.projectMeta}
+             />
 
              {/* Block 3: Employee Table */}
              <EmployeeTable data={data.employeeStats} />

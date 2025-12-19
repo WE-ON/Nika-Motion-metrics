@@ -33,9 +33,16 @@ export interface EmployeeStats {
   efficiency: number; // 0-100 percentage
 }
 
+export interface ProjectMeta {
+  projectName: string;
+  totalHours: number;
+  averageEfficiency: number;
+}
+
 export interface AggregatedData {
   dailyPercents: DailyStats[];
   projectTrends: Record<string, DailyStats[]>; // Map project name to daily stats
+  projectMeta: Record<string, ProjectMeta>;
   employeeStats: EmployeeStats[];
   projectList: string[];
 }
