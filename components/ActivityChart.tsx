@@ -26,7 +26,8 @@ const ActivityChart: React.FC<Props> = ({ data }) => {
       workPct: (d.work / total) * 100,
       commPct: (d.comm / total) * 100,
       otherPct: (d.other / total) * 100,
-      totalHours: d.total
+      totalHours: d.total,
+      uniqueUsers: d.uniqueUsers
     };
   });
 
@@ -71,9 +72,17 @@ const ActivityChart: React.FC<Props> = ({ data }) => {
               </div>
             )}
           </div>
-          <div className="mt-3 pt-2 border-t border-gray-600 text-gray-400 flex justify-between">
-            <span>Всего часов:</span>
-            <span className="font-mono text-white">{payload[0].payload.totalHours.toFixed(1)} ч.</span>
+          <div className="mt-3 pt-2 border-t border-gray-600 text-gray-400 space-y-1">
+            <div className="flex justify-between">
+                <span>Всего часов:</span>
+                <span className="font-mono text-white">{payload[0].payload.totalHours.toFixed(1)} ч.</span>
+            </div>
+            {payload[0].payload.uniqueUsers !== undefined && (
+                 <div className="flex justify-between">
+                    <span>Пользователей:</span>
+                    <span className="font-mono text-white">{payload[0].payload.uniqueUsers}</span>
+                </div>
+            )}
           </div>
         </div>
       );

@@ -124,6 +124,8 @@ export const aggregateData = (
   const projectSet = new Set<string>();
   // Track employees per project per day
   const projectEmployeeMap = new Map<string, Map<string, Set<string>>>();
+  // Track global employees per day
+  const dailyEmployeesMap = new Map<string, Set<string>>();
   // Track stats per employee per project for efficiency calculation
   const projectStatsMap = new Map<string, Map<string, { work: number, total: number }>>();
 
@@ -234,6 +236,14 @@ export const aggregateData = (
     }
 
     updateStats(dayStat, r.activityType, r.hours);
+
+    // 4. Track unique users for global daily stats
+    if (r.employee) {
+        if (!dailyEmployeesMap.has(r.date)) {
+            dailyEmployeesMap.set(r.date, new Set());
+        }
+        dailyEmployeesMap.get(r.date)!.add(r.employee);
+    }
   });
 
 
@@ -244,7 +254,12 @@ export const aggregateData = (
   }));
 
   // Sort daily stats
-  const sortedDaily = Array.from(dailyMap.values()).sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+  const sortedDaily = Array.from(dailyMap.values())
+    .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
+    .map(d => ({
+        ...d,
+        uniqueUsers: dailyEmployeesMap.get(d.date)?.size || 0
+    }));
 
   // Process Project Trends
   const projectTrends: Record<string, DailyStats[]> = {};

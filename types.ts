@@ -16,6 +16,7 @@ export interface DailyStats {
   other: number;
   total: number;
   employees?: string[]; // List of employees active on this day
+  uniqueUsers?: number; // Count of unique users on this day
 }
 
 export interface ProjectStats {

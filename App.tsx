@@ -6,7 +6,7 @@ import ProjectComparison from './components/ProjectComparison';
 import UserComparison from './components/UserComparison';
 import EmployeeTable from './components/EmployeeTable';
 import { parseCSV, aggregateData, FilterOptions } from './utils/parser';
-import { AggregatedData, RawRecord } from './types';
+import { RawRecord } from './types';
 import { COLORS } from './constants';
 import { Activity, Settings, Filter, X } from 'lucide-react';
 
