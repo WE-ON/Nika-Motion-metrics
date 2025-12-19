@@ -9,7 +9,8 @@ import {
   ResponsiveContainer,
   Treemap,
   ReferenceLine,
-  Cell
+  Cell,
+  LabelList
 } from 'recharts';
 import { ProjectMeta } from '../types';
 import Card from './ui/Card';
@@ -116,6 +117,8 @@ const ProjectComparison: React.FC<Props> = ({ projectMeta }) => {
       .sort((a, b) => b.totalHours - a.totalHours);
   }, [projectMeta]);
 
+  const maxHours = data.length > 0 ? data[0].totalHours : 0;
+
   return (
     <Card 
         title="Сравнение проектов" 
@@ -158,7 +161,11 @@ const ProjectComparison: React.FC<Props> = ({ projectMeta }) => {
                         name="Часы" 
                         unit="ч" 
                         stroke="#a0aec0"
-                        label={{ value: 'Объем работ (часы)', position: 'bottom', offset: 0,  }}
+                        scale="log"
+                        domain={['auto', 'auto']}
+                        allowDataOverflow
+                        tickFormatter={(value) => Number(value).toFixed(0)}
+                        label={{ value: 'Объем работ (часы, лог. шкала)', position: 'bottom', offset: 0, fill: '#a0aec0' }}
                     />
                     <YAxis 
                         type="number" 
@@ -172,10 +179,32 @@ const ProjectComparison: React.FC<Props> = ({ projectMeta }) => {
                     <Tooltip content={<CustomTooltipScatter />} cursor={{ strokeDasharray: '3 3' }} />
                     <ReferenceLine y={50} stroke={EFFICIENCY_COLORS.LOW} strokeDasharray="3 3" label={{ value: 'Min 50%', fill: EFFICIENCY_COLORS.LOW, position: 'insideTopLeft' }} />
                     <ReferenceLine y={70} stroke={EFFICIENCY_COLORS.HIGH} strokeDasharray="3 3" label={{ value: 'Target 70%', fill: EFFICIENCY_COLORS.HIGH, position: 'insideTopLeft' }} />
+                    
+                    {/* Max hours marker */}
+                    <ReferenceLine 
+                        x={maxHours} 
+                        stroke="#718096" 
+                        strokeDasharray="3 3" 
+                        label={{ 
+                            value: `${maxHours.toFixed(0)}ч`, 
+                            position: 'bottom', 
+                            fill: '#e2e8f0',
+                            fontSize: 12,
+                            dy: 10
+                        }} 
+                    />
+
                     <Scatter name="Проекты" data={data} fill={COLORS.accent}>
                         {data.map((entry, index) => (
                             <Cell key={`cell-${index}`} fill={getEfficiencyColor(entry.efficiency)} />
                         ))}
+                        <LabelList 
+                            dataKey="name" 
+                            position="top" 
+                            offset={5}
+                            formatter={(value: string) => value.length > 8 ? `${value.substring(0, 8)}..` : value}
+                            style={{ fill: '#e2e8f0', fontSize: '10px', pointerEvents: 'none' }}
+                        />
                     </Scatter>
                 </ScatterChart>
             ) : (
