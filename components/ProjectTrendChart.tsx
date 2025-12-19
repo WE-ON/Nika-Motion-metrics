@@ -54,7 +54,7 @@ const ProjectTrendChart: React.FC<Props> = ({ projectTrends, projectList, projec
       const data = payload[0].payload as DailyStats;
       const total = data.total || 1;
       return (
-        <div className="bg-gray-800 p-3 border border-gray-700 rounded shadow text-xs text-white z-50 max-w-[250px]">
+        <div className="bg-gray-800 p-3 border border-gray-700 rounded shadow text-xs text-white z-50 max-w-[250px] max-h-[300px] overflow-y-auto">
           <p className="font-bold mb-2">{label}</p>
           {payload.map((p: any, idx: number) => (
             <p key={idx} style={{ color: p.color }}>
@@ -84,7 +84,7 @@ const ProjectTrendChart: React.FC<Props> = ({ projectTrends, projectList, projec
   return (
     <Card 
         title="Тренды по проектам" 
-        subtitle="Динамика трудозатрат в часах"
+        subtitle="Динамика трудозатрат в часах (Нажмите на столбец для деталей)"
     >
       <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-6">
         <div className="flex-grow">
@@ -131,7 +131,11 @@ const ProjectTrendChart: React.FC<Props> = ({ projectTrends, projectList, projec
                 tick={{fill: '#a0aec0', fontSize: 12}}
                 label={{ value: 'Часов', angle: -90, position: 'insideLeft', fill: '#a0aec0' }}
               />
-              <Tooltip content={<CustomTooltip />} />
+              <Tooltip 
+                content={<CustomTooltip />} 
+                trigger="click"
+                wrapperStyle={{ pointerEvents: 'auto' }}
+              />
               <Legend />
               <Bar dataKey="work" name="Работа" stackId="a" fill={COLORS.charts.work} />
               <Bar dataKey="comm" name="Коммуникации" stackId="a" fill={COLORS.charts.comm} />

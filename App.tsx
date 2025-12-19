@@ -184,7 +184,10 @@ const App: React.FC = () => {
                         {Math.round(data.employeeStats.reduce((acc, curr) => acc + curr.totalHours, 0))}
                     </div>
                 </div>
-                <div className="bg-[#003B46] p-6 rounded-2xl border border-white/5">
+                <div 
+                    className="bg-[#003B46] p-6 rounded-2xl border border-white/5 cursor-help"
+                    title="Эффективность это процент рабочих программ относительно общего времени работы сотрудника"
+                >
                     <div className="text-gray-400 text-sm mb-1">Средняя эффективность</div>
                     <div className="text-3xl font-bold text-[#B5F836]">
                         {(data.employeeStats.reduce((acc, curr) => acc + curr.efficiency, 0) / (data.employeeStats.length || 1)).toFixed(1)}%

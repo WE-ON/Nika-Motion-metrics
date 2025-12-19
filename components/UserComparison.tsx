@@ -179,6 +179,7 @@ const UserComparison: React.FC<Props> = ({ employees }) => {
                     stroke="#a0aec0"
                     domain={[bottom, top]}
                     allowDataOverflow
+                    tickFormatter={(value) => value.toFixed(1)}
                     label={{ value: 'Эффективность (%)', angle: -90, position: 'insideLeft', fill: '#a0aec0' }}
                 />
                 <Tooltip content={<CustomTooltipScatter />} cursor={{ strokeDasharray: '3 3' }} />
