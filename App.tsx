@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import FileUpload from './components/FileUpload';
 import ActivityChart from './components/ActivityChart';
 import ProjectTrendChart from './components/ProjectTrendChart';
+import ProjectComparison from './components/ProjectComparison';
 import EmployeeTable from './components/EmployeeTable';
 import { parseCSV } from './utils/parser';
 import { AggregatedData } from './types';
@@ -95,6 +96,9 @@ const App: React.FC = () => {
 
              {/* Block 1: Detailed Percents */}
              <ActivityChart data={data.dailyPercents} />
+
+             {/* Block 1.5: Project Comparison Dashboard */}
+             <ProjectComparison projectMeta={data.projectMeta} />
 
              {/* Block 2: Project Trends */}
              <ProjectTrendChart 
