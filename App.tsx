@@ -3,6 +3,7 @@ import FileUpload from './components/FileUpload';
 import ActivityChart from './components/ActivityChart';
 import ProjectTrendChart from './components/ProjectTrendChart';
 import ProjectComparison from './components/ProjectComparison';
+import UserComparison from './components/UserComparison';
 import EmployeeTable from './components/EmployeeTable';
 import { parseCSV } from './utils/parser';
 import { AggregatedData } from './types';
@@ -106,6 +107,9 @@ const App: React.FC = () => {
                 projectList={data.projectList}
                 projectMeta={data.projectMeta}
              />
+
+             {/* Block 2.5: User Comparison Dashboard */}
+             <UserComparison employees={data.employeeStats} />
 
              {/* Block 3: Employee Table */}
              <EmployeeTable data={data.employeeStats} />
