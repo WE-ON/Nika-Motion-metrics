@@ -1,12 +1,17 @@
 import { RawRecord, AggregatedData, DailyStats, EmployeeStats, ProjectMeta } from '../types';
 
-export const parseCSV = (csvText: string): AggregatedData => {
+export interface FilterOptions {
+  minDailyHours: number;
+  maxWorkPercent: number;
+}
+
+export const parseCSV = (csvText: string): RawRecord[] => {
   // Remove BOM if present
   const cleanText = csvText.replace(/^\uFEFF/, '');
   const lines = cleanText.trim().split('\n');
   const records: RawRecord[] = [];
   
-  if (lines.length === 0) return aggregateData([]);
+  if (lines.length === 0) return [];
 
   // Detect separator from first line (comma or semicolon)
   const headerLine = lines[0];
@@ -106,10 +111,13 @@ export const parseCSV = (csvText: string): AggregatedData => {
     });
   }
 
-  return aggregateData(records);
+  return records;
 };
 
-const aggregateData = (records: RawRecord[]): AggregatedData => {
+export const aggregateData = (
+  records: RawRecord[], 
+  options: FilterOptions = { minDailyHours: 0, maxWorkPercent: 101 }
+): AggregatedData => {
   const dailyMap = new Map<string, DailyStats>();
   const projectMap = new Map<string, Map<string, DailyStats>>();
   const employeeMap = new Map<string, EmployeeStats>();
@@ -119,9 +127,42 @@ const aggregateData = (records: RawRecord[]): AggregatedData => {
   // Track stats per employee per project for efficiency calculation
   const projectStatsMap = new Map<string, Map<string, { work: number, total: number }>>();
 
+  // --- Step 1: Pre-calculate daily totals to identify excluded days ---
+  const dailyTotals = new Map<string, { total: number, work: number }>();
+  
+  records.forEach(r => {
+      if (!r.date || r.date.length < 5) return;
+      if (!dailyTotals.has(r.date)) {
+          dailyTotals.set(r.date, { total: 0, work: 0 });
+      }
+      const day = dailyTotals.get(r.date)!;
+      day.total += r.hours;
+      if (isWork(r.activityType)) {
+          day.work += r.hours;
+      }
+  });
+
+  const excludedDates = new Set<string>();
+  dailyTotals.forEach((stats, date) => {
+      // Filter 1: Min Daily Hours
+      if (stats.total < options.minDailyHours) {
+          excludedDates.add(date);
+          return;
+      }
+      // Filter 2: Max Work Percent
+      const workPct = stats.total > 0 ? (stats.work / stats.total) * 100 : 0;
+      if (workPct >= options.maxWorkPercent) {
+          excludedDates.add(date);
+      }
+  });
+
+  // --- Step 2: Main Aggregation (Skipping excluded dates) ---
   records.forEach(r => {
     // Basic date validation
     if (!r.date || r.date.length < 5) return;
+    
+    // Skip excluded dates
+    if (excludedDates.has(r.date)) return;
 
     // 1. Daily Aggregation (Global)
     if (!dailyMap.has(r.date)) {
@@ -194,6 +235,7 @@ const aggregateData = (records: RawRecord[]): AggregatedData => {
 
     updateStats(dayStat, r.activityType, r.hours);
   });
+
 
   // Finalize Employee Efficiency
   const employeeStats = Array.from(employeeMap.values()).map(e => ({
