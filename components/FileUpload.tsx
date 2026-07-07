@@ -1,5 +1,6 @@
 import React, { useRef, useState } from 'react';
 import { Upload, FileText, AlertCircle } from 'lucide-react';
+import * as XLSX from 'xlsx';
 
 interface Props {
   onDataLoaded: (csvText: string) => void;
@@ -10,9 +11,25 @@ const FileUpload: React.FC<Props> = ({ onDataLoaded }) => {
   const [dragActive, setDragActive] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const processFile = (file: File) => {
+  const processFile = async (file: File) => {
     setError(null);
     
+    if (file.name.toLowerCase().endsWith('.xlsx') || file.name.toLowerCase().endsWith('.xls')) {
+      try {
+        const buffer = await file.arrayBuffer();
+        const workbook = XLSX.read(buffer, { type: 'array' });
+        const firstSheetName = workbook.SheetNames[0];
+        const worksheet = workbook.Sheets[firstSheetName];
+        // Преобразуем Excel в CSV (используем ; как разделитель, так как наш парсер его поддерживает)
+        const csvText = XLSX.utils.sheet_to_csv(worksheet, { FS: ';' });
+        onDataLoaded(csvText);
+      } catch (err) {
+        console.error(err);
+        setError("Ошибка при чтении Excel файла");
+      }
+      return;
+    }
+
     // Recursive function to try encodings
     const readWithEncoding = (encoding: string) => {
       const reader = new FileReader();
@@ -99,7 +116,7 @@ const FileUpload: React.FC<Props> = ({ onDataLoaded }) => {
           type="file" 
           ref={fileInputRef} 
           onChange={handleFileChange} 
-          accept=".csv" 
+          accept=".csv, .xlsx, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel" 
           className="hidden" 
         />
         
@@ -111,13 +128,13 @@ const FileUpload: React.FC<Props> = ({ onDataLoaded }) => {
         </div>
 
         <h3 className="text-2xl font-bold text-white mb-3 font-comfortaa">
-          Загрузить CSV отчет
+          Загрузить CSV или Excel отчет
         </h3>
         
         <p className="text-gray-400 text-center max-w-md mb-6 leading-relaxed">
           Перетащите файл сюда или нажмите для выбора.<br/>
           <span className="text-sm opacity-60 mt-2 block">
-            Поддерживает кодировки UTF-8 и Windows-1251
+            Поддерживает форматы: .csv, .xlsx (кодировки UTF-8 и Windows-1251)
           </span>
         </p>
 
