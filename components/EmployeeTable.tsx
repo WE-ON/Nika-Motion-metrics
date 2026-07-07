@@ -7,7 +7,7 @@ interface Props {
   data: EmployeeStats[];
 }
 
-type SortField = 'name' | 'efficiency' | 'totalHours' | 'workHours';
+type SortField = 'name' | 'role' | 'efficiency' | 'totalHours' | 'workHours';
 type SortDirection = 'asc' | 'desc';
 
 const MIN_WORK_HOURS_THRESHOLD = 10;
@@ -50,6 +50,16 @@ const TableHeader = ({
       </th>
       <th 
         scope="col" 
+        className={`px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider ${!disableSorting ? 'cursor-pointer hover:bg-white/5' : ''} transition`}
+        onClick={() => !disableSorting && onSort && onSort('role')}
+      >
+        <div className="flex items-center">
+          Должность
+          {!disableSorting && sortField && sortDirection && <SortIcon field="role" currentSortField={sortField} sortDirection={sortDirection} />}
+        </div>
+      </th>
+      <th 
+        scope="col" 
         className={`px-6 py-3 text-right text-xs font-medium text-gray-300 uppercase tracking-wider ${!disableSorting ? 'cursor-pointer hover:bg-white/5' : ''} transition`}
         onClick={() => !disableSorting && onSort && onSort('efficiency')}
       >
@@ -86,7 +96,9 @@ const EmployeeRow = ({ employee, idx }: { employee: EmployeeStats, idx: number }
   <tr className={idx % 2 === 0 ? 'bg-transparent' : 'bg-white/5'}>
     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-white">
       {employee.name}
-      <div className="text-xs text-gray-400">{employee.role}</div>
+    </td>
+    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-400">
+      {employee.role}
     </td>
     <td className="px-6 py-4 whitespace-nowrap text-right text-sm">
       <span className={`font-bold ${getEfficiencyColor(employee.efficiency)}`}>
@@ -182,7 +194,7 @@ const EmployeeTable: React.FC<Props> = ({ data }) => {
                 {sortedActive.map((employee, idx) => <EmployeeRow key={employee.name} employee={employee} idx={idx} />)}
                 {sortedActive.length === 0 && (
                 <tr>
-                    <td colSpan={4} className="px-6 py-8 text-center text-gray-500">
+                    <td colSpan={5} className="px-6 py-8 text-center text-gray-500">
                     Нет сотрудников с активностью более {MIN_WORK_HOURS_THRESHOLD} ч.
                     </td>
                 </tr>
