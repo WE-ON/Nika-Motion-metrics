@@ -19,6 +19,15 @@ const App: React.FC = () => {
   const [showFilters, setShowFilters] = useState(false);
   const [loading, setLoading] = useState(false);
 
+  const availableRoles = useMemo(() => {
+    if (!rawRecords) return [];
+    const roles = new Set<string>();
+    rawRecords.forEach(r => {
+        if (r.role) roles.add(r.role);
+    });
+    return Array.from(roles).sort();
+  }, [rawRecords]);
+
   const data = useMemo(() => {
     if (!rawRecords) return null;
     return aggregateData(rawRecords, filterOptions);
@@ -30,6 +39,14 @@ const App: React.FC = () => {
     setTimeout(() => {
         try {
             const records = parseCSV(csvText);
+            const roles = new Set<string>();
+            records.forEach(r => {
+                if (r.role) roles.add(r.role);
+            });
+            setFilterOptions(prev => ({
+                ...prev,
+                selectedRoles: Array.from(roles)
+            }));
             setRawRecords(records);
         } catch (error) {
             console.error("Error parsing CSV", error);
@@ -103,7 +120,7 @@ const App: React.FC = () => {
                      <div className="flex justify-between items-center mb-4">
                         <h3 className="text-lg font-bold text-white flex items-center gap-2">
                             <Filter className="w-5 h-5 text-[#B5F836]" />
-                            Настройка фильтрации аномалий
+                            Настройка фильтрации
                         </h3>
                         <button onClick={() => setShowFilters(false)} className="text-gray-400 hover:text-white">
                             <X className="w-5 h-5" />
@@ -165,6 +182,52 @@ const App: React.FC = () => {
                              </p>
                          </div>
                      </div>
+
+                     {availableRoles.length > 0 && (
+                         <div className="mt-8 border-t border-white/10 pt-6">
+                             <label className="block text-sm font-medium text-gray-300 mb-4">
+                                 Фильтр по должностям
+                             </label>
+                             <div className="flex flex-wrap gap-3">
+                                 {availableRoles.map(role => (
+                                     <label key={role} className="flex items-center gap-2 bg-[#003B46] px-3 py-1.5 rounded-lg border border-white/5 cursor-pointer hover:border-[#B5F836]/50 transition-colors">
+                                         <input 
+                                             type="checkbox" 
+                                             className="accent-[#B5F836] w-4 h-4"
+                                             checked={filterOptions.selectedRoles?.includes(role) ?? false}
+                                             onChange={(e) => {
+                                                 const isChecked = e.target.checked;
+                                                 setFilterOptions(prev => {
+                                                     const currentRoles = prev.selectedRoles || [];
+                                                     return {
+                                                         ...prev,
+                                                         selectedRoles: isChecked 
+                                                             ? [...currentRoles, role] 
+                                                             : currentRoles.filter(r => r !== role)
+                                                     };
+                                                 });
+                                             }}
+                                         />
+                                         <span className="text-sm text-gray-300">{role || 'Не указана'}</span>
+                                     </label>
+                                 ))}
+                             </div>
+                             <div className="mt-4 flex gap-3">
+                                 <button 
+                                     onClick={() => setFilterOptions(prev => ({...prev, selectedRoles: availableRoles}))}
+                                     className="text-xs text-[#B5F836] hover:underline"
+                                 >
+                                     Выбрать все
+                                 </button>
+                                 <button 
+                                     onClick={() => setFilterOptions(prev => ({...prev, selectedRoles: []}))}
+                                     className="text-xs text-gray-400 hover:text-white hover:underline"
+                                 >
+                                     Сбросить все
+                                 </button>
+                             </div>
+                         </div>
+                     )}
                  </div>
              )}
 

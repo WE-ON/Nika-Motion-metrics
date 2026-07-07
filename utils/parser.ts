@@ -3,6 +3,7 @@ import { RawRecord, AggregatedData, DailyStats, EmployeeStats, ProjectMeta } fro
 export interface FilterOptions {
   minDailyHours: number;
   maxWorkPercent: number;
+  selectedRoles?: string[];
 }
 
 export const parseCSV = (csvText: string): RawRecord[] => {
@@ -118,6 +119,12 @@ export const aggregateData = (
   records: RawRecord[], 
   options: FilterOptions = { minDailyHours: 0, maxWorkPercent: 101 }
 ): AggregatedData => {
+  // Filter by selected roles if provided
+  if (options.selectedRoles) {
+      const allowedRoles = new Set(options.selectedRoles);
+      records = records.filter(r => allowedRoles.has(r.role));
+  }
+
   const dailyMap = new Map<string, DailyStats>();
   const projectMap = new Map<string, Map<string, DailyStats>>();
   const employeeMap = new Map<string, EmployeeStats>();
